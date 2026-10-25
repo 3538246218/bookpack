@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.parcelize'
+    id 'androidx.room'
+    id 'com.google.devtools.ksp'
+}
+
+apply from: '../vendor/legado/app/cronet-loader.gradle'
+
+android {
+    namespace 'io.legado.app'
+    compileSdk 36
+    defaultConfig {
+        minSdk 26
+        buildConfigField 'String', 'APPLICATION_ID', '"com.bookpack.mobile"'
+        buildConfigField 'String', 'Cronet_Version', '"152.0.7977.54"'
+        buildConfigField 'String', 'Cronet_Main_Version', '"152.0.0.0"'
+        consumerProguardFiles '../vendor/legado/app/proguard-rules.pro', '../vendor/legado/app/cronet-proguard-rules.pro'
+        manifestPlaceholders = [app_name:'书包阅读', APP_CHANNEL_VALUE:'bookpack']
+    }
+    buildFeatures { buildConfig true; viewBinding true }
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+    kotlin { jvmToolchain(21) }
+    sourceSets {
+        main {
+            java.srcDirs += ['../vendor/legado/app/src/main/java']
+            res.srcDirs += ['../vendor/legado/app/src/main/res']
+            assets.srcDirs += ['../vendor/legado/app/src/main/assets']
+        }
+    }
+    packaging { resources.excludes += ['META-INF/*', 'tables/Transcoder_*.bin', '*.proto', '**/*.proto', 'src/**'] }
+}
+
+room { schemaDirectory "$projectDir/../vendor/legado/app/schemas" }
+ksp { arg('room.incremental','true'); arg('room.expandProjection','true'); arg('room.generateKotlin','false') }
+
+// Keep the reader's implementation dependencies pinned to the upstream release.
+apply from: 'dependencies.gradle'

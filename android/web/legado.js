@@ -10,17 +10,17 @@
     catch { info = {available:false}; }
     const native = !!window.AndroidHost?.openLegado;
     $("legado-status").textContent = info.available
-      ? '已连接 Legado ' + (info.version || '')
-      : native ? '尚未安装 Legado' : 'Legado 连接在安卓应用内使用';
+      ? (info.embedded ? '已内置 Legado ' : '已连接 Legado ') + (info.version || '')
+      : native ? '阅读器暂不可用' : '内置 Legado 在安卓应用内使用';
     $("reader-engine-note").textContent = engine() === 'legado'
-      ? '书包把原始 TXT / EPUB 交给 Legado。进度、书签和排版由 Legado 保存；首次打开可能需要选择书籍位置。'
-      : '使用书包内置的简洁阅读器，阅读进度与书签保存在书包。';
+      ? 'Legado 已包含在安卓融合版中，支持音量键翻页、排版和 EPUB 插图。阅读副本、进度与书签保存在书包内。'
+      : '使用原有的简洁阅读器，进度与书签和 Legado 阅读分别保存。';
     document.querySelectorAll('[data-reader-engine]').forEach(button => {
       button.setAttribute('aria-pressed', String(button.dataset.readerEngine === engine()));
     });
     $("library-reader-label").textContent = engine() === 'legado'
-      ? info.available ? '用 Legado 继续阅读' : native ? 'Legado 阅读 · 待安装' : 'Legado 阅读 · 网页预览'
-      : '内置阅读 · 进度保存在书包';
+      ? info.available ? '用内置 Legado 继续阅读' : native ? 'Legado 阅读 · 暂不可用' : 'Legado 阅读 · 网页预览'
+      : '简洁阅读 · 进度保存在书包';
     return {...info};
   }
 
@@ -33,7 +33,7 @@
 
   function showUnavailable(identity, text) {
     requestedBook = identity;
-    $("legado-dialog-message").textContent = text || '这台手机还没有安装 Legado。安装后返回书包，再点一次书籍即可打开。';
+    $("legado-dialog-message").textContent = text || '内置阅读器暂时无法打开，请重新打开书包后再试。';
     if (!dialog.open) dialog.showModal();
   }
 
@@ -50,7 +50,7 @@
     if (pending) return false;
     if (!refresh().available || !window.AndroidHost?.openLegado) {
       showUnavailable(identity, window.AndroidHost?.openLegado ? undefined
-        : '当前是网页测试，浏览器无法检测或启动安卓 Legado。一键送书需要在安卓应用内验证；这里可以先用内置阅读体验正文。');
+        : '当前是网页测试，浏览器无法运行内置的安卓 Legado。这里可以先用简洁阅读体验正文；完整阅读器需要安装安卓融合版。');
       return false;
     }
     markOpening(identity, true);
@@ -83,6 +83,10 @@
     if (button) choose(button.dataset.readerEngine);
   });
   $("legado-dialog-close").addEventListener('click', () => dialog.close());
+  $("reader-license").addEventListener('click', () => {
+    if (window.AndroidHost?.showReaderLicense) window.AndroidHost.showReaderLicense();
+    else window.open('https://github.com/LegadoTeam/legado/blob/master/LICENSE','_blank','noopener');
+  });
   $("legado-use-builtin").addEventListener('click', () => {
     const identity = requestedBook;
     dialog.close(); choose('builtin');

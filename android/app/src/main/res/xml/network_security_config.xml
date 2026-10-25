@@ -1,4 +1,4 @@
 <network-security-config>
-    <base-config cleartextTrafficPermitted="false"/>
+    <base-config cleartextTrafficPermitted="true"/>
     <domain-config cleartextTrafficPermitted="true"><domain>127.0.0.1</domain><domain>localhost</domain></domain-config>
 </network-security-config>

@@ -46,7 +46,7 @@ def start(runtime, home):
                     file, mime = static[path]
                     return self.send_bytes((runtime / 'mobile' / file).read_bytes(), mime)
                 if path == '/api/mobile/info':
-                    return self.send_json({'version':'0.3.0','core_version':'1.8.2','execution':'android-local'})
+                    return self.send_json({'version':'0.4.0','core_version':'1.8.2','execution':'android-local'})
                 if path.startswith('/api/reader/'):
                     query = dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(self.path).query))
                     try:

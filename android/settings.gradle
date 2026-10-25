@@ -1,9 +1,24 @@
 pluginManagement {
-    repositories { google(); mavenCentral(); gradlePluginPortal() }
+    buildscript {
+        repositories { mavenCentral(); maven { url 'https://storage.googleapis.com/r8-releases/raw' } }
+        dependencies { classpath 'com.android.tools:r8:9.1.29' }
+    }
+    repositories {
+        google { content { includeGroupByRegex 'com\\.android.*'; includeGroupByRegex 'com\\.google.*'; includeGroupByRegex 'androidx.*' } }
+        mavenCentral(); gradlePluginPortal()
+    }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories { google(); mavenCentral() }
+    repositories {
+        google { content { includeGroupByRegex 'com\\.android.*'; includeGroupByRegex 'com\\.google.*'; includeGroupByRegex 'androidx.*' } }
+        mavenCentral()
+        maven { url "$rootDir/vendor/legado/third_party/maven" }
+        maven { url 'https://jitpack.io'; content { includeGroupByRegex 'com\\.github.*' } }
+    }
 }
 rootProject.name = 'BookpackAndroid'
 include ':app'
+include ':legado', ':modules:book', ':modules:rhino'
+project(':modules:book').projectDir = file('vendor/legado/modules/book')
+project(':modules:rhino').projectDir = file('vendor/legado/modules/rhino')

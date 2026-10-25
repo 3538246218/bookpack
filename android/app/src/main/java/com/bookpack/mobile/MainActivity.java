@@ -86,7 +86,7 @@ public class MainActivity extends Activity {
     }
     private void handleBack() { web.evaluateJavascript("typeof window.bookpackBack==='function' && window.bookpackBack()", value -> { if (!"true".equals(value)) finish(); }); }
     private String environment() {
-        return "{\"reducedMotion\":"+(android.provider.Settings.Global.getFloat(getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1f)==0f)+",\"dailyRadar\":"+getSharedPreferences("bookpack",MODE_PRIVATE).getBoolean("dailyRadar",true)+",\"version\":\"0.3.0\"}";
+        return "{\"reducedMotion\":"+(android.provider.Settings.Global.getFloat(getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1f)==0f)+",\"dailyRadar\":"+getSharedPreferences("bookpack",MODE_PRIVATE).getBoolean("dailyRadar",true)+",\"version\":\"0.4.0\"}";
     }
     private void publishEnvironment(){if(web!=null)web.evaluateJavascript("window.onNativeEnvironmentChanged && window.onNativeEnvironmentChanged("+environment()+")",null);}
     @Override protected void onResume(){super.onResume();if(web!=null)publishEnvironment();}
@@ -112,9 +112,24 @@ public class MainActivity extends Activity {
         }
         private void legadoFailure(Exception error, String identity) {
             try { legadoResult(new JSONObject().put("ok", false).put("id", identity).put("reason", "open_failed")
-                    .put("message", "未能用 Legado 打开，请检查安装状态及书籍文件后重试。")); }
+                    .put("message", "未能打开阅读器，请确认书籍文件完整后重试；也可以改用简洁阅读。")); }
             catch (org.json.JSONException ignored) { }
             android.util.Log.w("Bookpack", "Legado file handoff", error);
+        }
+        @JavascriptInterface public void showReaderLicense() {
+            CoreRuntime.IO.execute(() -> {
+                try (InputStream input = getAssets().open("licenses/legado-gpl3.txt"); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                    CoreRuntime.transfer(input, output);
+                    String text = "书包融合版的阅读内核：Legado 3.26101819，gedoor 与贡献者。\n按 GNU GPLv3 提供，无担保。\n对应源码：https://github.com/3538246218/bookpack\n\n" + output.toString("UTF-8");
+                    runOnUiThread(() -> {
+                        android.widget.TextView body = new android.widget.TextView(MainActivity.this);
+                        int padding = (int)(20 * getResources().getDisplayMetrics().density);
+                        body.setPadding(padding,padding,padding,padding); body.setTextSize(13); body.setTextIsSelectable(true); body.setText(text);
+                        android.widget.ScrollView scroll = new android.widget.ScrollView(MainActivity.this); scroll.addView(body);
+                        new android.app.AlertDialog.Builder(MainActivity.this).setTitle("Legado · GPLv3 开源许可").setView(scroll).setPositiveButton("关闭",null).show();
+                    });
+                } catch (Exception error) { message("许可文件暂不可用。"); }
+            });
         }
         @JavascriptInterface public String getEnvironment(){return environment();}
         @JavascriptInterface public void setDailyRadar(boolean enabled){

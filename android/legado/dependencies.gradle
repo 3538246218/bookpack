@@ -1,0 +1,80 @@
+dependencies {
+    coreLibraryDesugaring(libs.desugar)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.bundles.coroutines)
+    implementation(libs.renderscript.intrinsics.replacement.toolkit)
+    implementation(libs.core.ktx)
+    implementation(libs.appcompat.appcompat)
+    implementation(libs.activity.ktx)
+    implementation(libs.fragment.ktx)
+    implementation(libs.preference.ktx)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.viewpager2)
+    implementation(libs.androidx.webkit)
+    implementation(libs.androidx.documentfile)
+    implementation(libs.material)
+    implementation(libs.flexbox)
+    implementation(libs.gson)
+    implementation(libs.lifecycle.common.java8)
+    implementation(libs.lifecycle.service)
+    implementation(libs.media.media)
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.datasource.okhttp)
+    implementation(libs.gsyVideoPlayer.java)
+    implementation(libs.gsyVideoPlayer.exo2) {
+        exclude(group: 'androidx.media3', module: 'media3-cast')
+    }
+    implementation (libs.danmakuFlameMaster)
+    implementation(libs.splitties.appctx)
+    implementation(libs.splitties.systemservices)
+    implementation(libs.splitties.views)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    implementation(libs.liveeventbus)
+    implementation(libs.jsoup)
+    implementation(libs.json.path)
+    implementation(libs.jsoupxpath)
+    implementation(project(path: ':modules:book'))
+    implementation(project(path: ':modules:rhino'))
+    implementation(libs.okhttp)
+    implementation(libs.brotli.dec)
+    implementation(fileTree(dir: 'cronetlib', include: ['*.jar'], exclude: ['cronet_impl_native_java.jar']))
+    implementation(dynamicCronetJar)
+    implementation(libs.protobuf.javalite)
+    implementation(libs.glide.glide)
+    implementation(libs.glide.okhttp)
+    ksp(libs.glide.ksp)
+    implementation(libs.androidsvg)
+    implementation(libs.glide.svg)
+    implementation(libs.nanohttpd.nanohttpd)
+    implementation(libs.nanohttpd.websocket)
+    implementation(libs.mcp.sdk.server) {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'
+    }
+    implementation(libs.ktor.server.cio) {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'
+    }
+    implementation(libs.zxing.lite)
+    implementation(libs.colorpicker)
+    implementation libs.libarchive
+    implementation(libs.commons.text)
+    implementation(libs.markwon.core)
+    implementation(libs.markwon.image.glide)
+    implementation(libs.markwon.ext.tables)
+    implementation(libs.markwon.html)
+    implementation(libs.quick.chinese.transfer.core)
+    implementation(libs.hutool.crypto)
+    implementation(libs.bouncycastle.provider)
+    implementation(libs.bouncycastle.pkix)
+    implementation(libs.pdfbox.android) {
+        exclude group: 'org.bouncycastle'
+    }
+    implementation libs.glide.recyclerview
+    implementation(libs.lyricViewx)
+    implementation(platform(libs.soraEditor.bom))
+    implementation(libs.soraEditor.core)
+    implementation(libs.soraEditor.language.textmate)
+}

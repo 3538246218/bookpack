@@ -4,21 +4,35 @@ plugins {
 }
 android {
     namespace 'com.bookpack.mobile'
-    compileSdk 35
+    compileSdk 36
     defaultConfig {
         applicationId 'com.bookpack.mobile'
-        minSdk 24
+        minSdk 26
         targetSdk 35
-        versionCode 3
-        versionName '0.3.0'
+        versionCode 4
+        versionName '0.4.0'
         ndk { abiFilters 'arm64-v8a', 'x86_64' }
     }
     buildFeatures { buildConfig true }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+    buildTypes {
+        debug {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
-    packaging { resources { excludes += ['META-INF/DEPENDENCIES'] } }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+        coreLibraryDesugaringEnabled true
+    }
+    packaging { resources { excludes += ['META-INF/*','tables/Transcoder_*.bin','*.proto','**/*.proto','src/**'] } }
+}
+dependencies {
+    implementation project(':legado')
+    implementation libs.appcompat.appcompat
+    implementation libs.kotlin.reflect
+    coreLibraryDesugaring libs.desugar
 }
 chaquopy {
     defaultConfig {

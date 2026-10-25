@@ -1,14 +1,16 @@
 # 书包
 
-桌面版 **1.8.2**，安卓测试版 **0.3.0**。本仓库保存程序源码、安卓工程、移动端迁移方案、内置目录数据和第三方许可。
+桌面版 **1.8.2**，安卓融合测试版 **0.4.0**。本仓库保存程序源码、安卓工程、移动端迁移方案、内置目录数据和第三方许可。
 
 ## 安卓测试版
 
-安卓应用在手机上独立运行，复用找书与打包引擎，支持番茄雷达每日更新、候选选择、批量导入、任务记录、TXT / EPUB 书架、系统文件保存和分享。0.3.0 默认一键调用另行安装的 [Legado 阅读器](https://github.com/LegadoTeam/legado/releases/latest)，也可在设置中选择内置阅读。内置海岸晨光、林间微雨、星夜远山、雨夜窗景四种离线动态景色，以及对应的绿色和黑夜界面。最低 Android 7.0 / API 24，包含 arm64-v8a 与 x86_64；当前已在 Android 15 的 x86_64 模拟器验证，尚未验证实体 ARM 手机。
+安卓应用在手机上独立运行，复用找书与打包引擎，支持番茄雷达每日更新、候选选择、批量导入、任务记录、TXT / EPUB 书架、系统文件保存和分享。0.4.0 把 [Legado](https://github.com/LegadoTeam/legado) 源码编译进同一个 APK，安装一次即可找书和原生阅读，无需另装阅读器；也保留原有的简洁文字阅读。内置海岸晨光、林间微雨、星夜远山、雨夜窗景四种离线动态景色，以及对应的绿色和黑夜界面。最低 Android 8.0 / API 26，包含 arm64-v8a 与 x86_64；实体 ARM 手机仍需实测。
 
-- [下载安卓测试 APK](https://github.com/3538246218/bookpack/releases/tag/android-v0.3.0)
+- [下载安卓融合测试 APK](https://github.com/3538246218/bookpack/releases/tag/android-v0.4.0)
 - [安卓安装、使用与构建说明](android/安装与使用.md)
-- [0.3.0 更新说明](android/releases/android-v0.3.0.md)
+- [0.4.0 更新说明](android/releases/android-v0.4.0.md)
+- [0.4.0 验证记录](android/0.4.0验证记录.md)
+- [融合版开源许可与对应源码说明](android/NOTICE.md)
 - [Legado 网页验证记录](android/Legado网页验证.md)
 - [动态海面问题调查](android/动态海面问题调查.md)：记录 0.1.0 的问题与 0.2.0 的修复。
 - [通用移动端迁移方案](mobile-plan/移动端迁移方案.md)

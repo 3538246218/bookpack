@@ -5,3 +5,6 @@ app/src/main/assets/runtime/
 .signing/
 outputs/
 __pycache__/
+legado/cronetlib/
+legado/build/
+vendor/legado/**/build/

@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib
 import json
+import os
 import shutil
 import urllib.request
 import zipfile
@@ -33,7 +34,11 @@ else:
     wheel = next(item for item in metadata['urls'] if item['filename'].endswith('none-any.whl'))
     dependency = {'version':metadata['info']['version'], 'url':wheel['url'], 'sha256':wheel['digests']['sha256']}
     lock.write_text(json.dumps(dependency, indent=2), encoding='utf-8')
-cache = Path('E:/dev-tools/downloads') / dependency['url'].rsplit('/',1)[1]
+cache_dir = Path(os.environ.get('BOOKPACK_DEPENDENCY_CACHE',
+                 'E:/dev-tools/downloads' if os.name == 'nt' and Path('E:/dev-tools/downloads').is_dir()
+                 else str(PROJECT / 'outputs/dependency-cache')))
+cache_dir.mkdir(parents=True, exist_ok=True)
+cache = cache_dir / dependency['url'].rsplit('/',1)[1]
 if not cache.is_file() or hashlib.sha256(cache.read_bytes()).hexdigest() != dependency['sha256']:
     with urllib.request.urlopen(dependency['url'], timeout=45) as response, cache.open('wb') as output:
         shutil.copyfileobj(response, output)
