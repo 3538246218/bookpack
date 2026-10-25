@@ -40,13 +40,13 @@ def start(runtime, home):
                           '/mobile.css': ('mobile.css','text/css; charset=utf-8'),
                           '/radar-data.js': ('radar-data.js','application/javascript; charset=utf-8'),
                           '/assets/ocean.png': ('assets/ocean.png','image/png')}
-                for file in ('scenes.js', 'reader.js'):
+                for file in ('scenes.js', 'reader.js', 'legado.js'):
                     static['/' + file] = (file, 'application/javascript; charset=utf-8')
                 if path in static:
                     file, mime = static[path]
                     return self.send_bytes((runtime / 'mobile' / file).read_bytes(), mime)
                 if path == '/api/mobile/info':
-                    return self.send_json({'version':'0.2.0','core_version':'1.8.2','execution':'android-local'})
+                    return self.send_json({'version':'0.3.0','core_version':'1.8.2','execution':'android-local'})
                 if path.startswith('/api/reader/'):
                     query = dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(self.path).query))
                     try:
@@ -65,6 +65,15 @@ def start(runtime, home):
 
             def do_POST(self):
                 path = urllib.parse.urlsplit(self.path).path
+                if path == '/api/reader/import':
+                    try:
+                        query = dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(self.path).query))
+                        result = self.server.reader.import_file(query.get('filename', ''), self.rfile,
+                                                               int(self.headers.get('Content-Length', 0)))
+                        import_directory(str(self.server.engine.home / '本地书库'))
+                        return self.send_json(result)
+                    except (ValueError, OSError) as exc:
+                        return self.send_json({'error': str(exc)}, 400)
                 if path in ('/api/reader/progress', '/api/radar/daily', '/api/radar/auto'):
                     try:
                         body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))) or '{}')
@@ -107,6 +116,9 @@ def import_directory(directory):
         config['local_dirs'].append(str(directory))
         _server.engine.search.save_settings(config)
     return True
+
+def reader_source(identity):
+    return json.dumps(_server.reader.source(str(identity)), ensure_ascii=False)
 
 def daily_update():
     status = _server.radar.start_daily()

@@ -1,4 +1,5 @@
 import json
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -43,6 +44,20 @@ class ReaderTests(unittest.TestCase):
         self.assertNotIn('xmlns', self.library.chapter(identity, 0)['text'])
         with self.assertRaises(ReaderError):
             self.library.book('does-not-exist')
+
+    def test_browser_import_keeps_original_bytes_and_duplicate_books(self):
+        body = '第一章 山风\n来自网页导入的信，保留原始编码。'.encode('gb18030')
+        first = self.library.import_file('山间来信.txt', io.BytesIO(body), len(body))
+        later = '第一章 回声\n另一本同名的书。'.encode()
+        second = self.library.import_file('山间来信.txt', io.BytesIO(later), len(later))
+        self.assertNotEqual(first['id'], second['id'])
+        reopened = ReaderLibrary(Engine(self.home))
+        self.assertEqual(Path(reopened.source(first['id'])['path']).read_bytes(), body)
+        self.assertIn('保留原始编码', reopened.chapter(first['id'], 0)['text'])
+        epub = demo_epub()
+        imported = reopened.import_file('海边来信.epub', io.BytesIO(epub), len(epub))
+        self.assertEqual(Path(reopened.source(imported['id'])['path']).read_bytes(), epub)
+        self.assertIn('银杏叶', reopened.chapter(imported['id'], 0)['text'])
 
 
 class DailyRadarTests(unittest.TestCase):

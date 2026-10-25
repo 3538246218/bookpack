@@ -163,6 +163,47 @@ class ReaderLibrary:
         rows.sort(key=lambda row: (row['progress'].get('updated_at', ''), row['title']), reverse=True)
         return {'books': rows}
 
+    def source(self, identity):
+        book = self._books().get(identity)
+        if not book:
+            raise ReaderError('文件已不存在，请重新导入或获取这本书。')
+        path, title, author, _, _ = book
+        if path.suffix.lower() not in ('.txt', '.epub'):
+            raise ReaderError('请选择 TXT 或 EPUB 书籍。')
+        return {'id': identity, 'path': str(path.resolve()), 'filename': path.name,
+                'title': title, 'author': author, 'bytes': path.stat().st_size,
+                'mime': 'application/epub+zip' if path.suffix.lower() == '.epub' else 'text/plain'}
+
+    def import_file(self, filename, stream, length):
+        filename = re.sub(r'[<>:"/\\|?*\x00-\x1f]', '_', str(filename)).strip(' .')
+        name = Path(filename)
+        if name.suffix.lower() not in ('.txt', '.epub'):
+            raise ReaderError('请选择 TXT 或 EPUB 文件。')
+        if not 0 < length <= LIMIT:
+            raise ReaderError('请选择 64 MB 以内的 TXT 或 EPUB 文件。')
+        directory = self.engine.home / '本地书库'
+        directory.mkdir(parents=True, exist_ok=True)
+        temporary = directory / (uuid.uuid4().hex + '.part')
+        try:
+            with temporary.open('xb') as output:
+                remaining = length
+                while remaining:
+                    chunk = stream.read(min(128 * 1024, remaining))
+                    if not chunk:
+                        raise ReaderError('文件没有上传完整，请重新选择。')
+                    output.write(chunk)
+                    remaining -= len(chunk)
+            with self.lock:
+                target, number = directory / name.name, 2
+                while target.exists():
+                    target = directory / f'{name.stem}（{number}）{name.suffix}'
+                    number += 1
+                temporary.rename(target)
+            identity = hashlib.sha256(str(target.resolve()).encode()).hexdigest()[:20]
+            return {'id': identity, 'title': target.stem, 'format': target.suffix[1:].upper()}
+        finally:
+            temporary.unlink(missing_ok=True)
+
     def _load(self, identity):
         book = self._books().get(identity)
         if not book:

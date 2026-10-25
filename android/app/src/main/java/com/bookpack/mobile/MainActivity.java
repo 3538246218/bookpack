@@ -81,9 +81,12 @@ public class MainActivity extends Activity {
         CoreRuntime.IO.execute(() -> { try { String url=ready.get(); runOnUiThread(() -> web.loadUrl(url+hash)); } catch (Exception error) { android.util.Log.e("Bookpack","Startup",error); runOnUiThread(() -> web.loadData("<meta charset='utf-8'><p>书包启动失败，请重新打开应用。</p>","text/html","UTF-8")); } });
     }
     private void message(String text) { runOnUiThread(() -> { Toast.makeText(this,text,Toast.LENGTH_LONG).show(); if(web!=null)web.evaluateJavascript("window.nativeFileResult && window.nativeFileResult("+JSONObject.quote(text)+")",null); }); }
+    private void legadoResult(JSONObject result) {
+        if (web != null) web.evaluateJavascript("window.onLegadoResult && window.onLegadoResult(" + result + ")", null);
+    }
     private void handleBack() { web.evaluateJavascript("typeof window.bookpackBack==='function' && window.bookpackBack()", value -> { if (!"true".equals(value)) finish(); }); }
     private String environment() {
-        return "{\"reducedMotion\":"+(android.provider.Settings.Global.getFloat(getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1f)==0f)+",\"dailyRadar\":"+getSharedPreferences("bookpack",MODE_PRIVATE).getBoolean("dailyRadar",true)+",\"version\":\"0.2.0\"}";
+        return "{\"reducedMotion\":"+(android.provider.Settings.Global.getFloat(getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1f)==0f)+",\"dailyRadar\":"+getSharedPreferences("bookpack",MODE_PRIVATE).getBoolean("dailyRadar",true)+",\"version\":\"0.3.0\"}";
     }
     private void publishEnvironment(){if(web!=null)web.evaluateJavascript("window.onNativeEnvironmentChanged && window.onNativeEnvironmentChanged("+environment()+")",null);}
     @Override protected void onResume(){super.onResume();if(web!=null)publishEnvironment();}
@@ -94,6 +97,25 @@ public class MainActivity extends Activity {
         String url=web.getUrl();out.putString("hash",url!=null&&url.contains("#")?url.substring(url.indexOf('#')):"");
     }
     final class NativeHost {
+        @JavascriptInterface public String getLegadoInfo() { return LegadoBridge.status(MainActivity.this).toString(); }
+        @JavascriptInterface public void openLegado(String identity) {
+            CoreRuntime.IO.execute(() -> {
+                try {
+                    JSONObject book = BookFileProvider.source(MainActivity.this, identity);
+                    LegadoBridge.Handoff handoff = LegadoBridge.prepare(MainActivity.this, book);
+                    runOnUiThread(() -> {
+                        try { legadoResult(LegadoBridge.launch(MainActivity.this, handoff)); }
+                        catch (Exception error) { legadoFailure(error, identity); }
+                    });
+                } catch (Exception error) { runOnUiThread(() -> legadoFailure(error, identity)); }
+            });
+        }
+        private void legadoFailure(Exception error, String identity) {
+            try { legadoResult(new JSONObject().put("ok", false).put("id", identity).put("reason", "open_failed")
+                    .put("message", "未能用 Legado 打开，请检查安装状态及书籍文件后重试。")); }
+            catch (org.json.JSONException ignored) { }
+            android.util.Log.w("Bookpack", "Legado file handoff", error);
+        }
         @JavascriptInterface public String getEnvironment(){return environment();}
         @JavascriptInterface public void setDailyRadar(boolean enabled){
             getSharedPreferences("bookpack",MODE_PRIVATE).edit().putBoolean("dailyRadar",enabled).apply();RadarUpdateJob.schedule(MainActivity.this,enabled);

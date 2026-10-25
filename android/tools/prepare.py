@@ -54,9 +54,10 @@ html = html[:start] + html[end:]
 html = html.replace('书包 · 移动端交互原型', '书包')
 html = html.replace('保存在此浏览器', '保存在此手机').replace('连接与错误状态预览', '运行与存储')
 html = html.replace('<p class="snapshot-footnote">书名与在读数据来自已保存快照，非今日实时榜单。</p>', '<p class="snapshot-footnote">榜单注明快照日期，刷新后显示新保存的数据。</p>')
-html = html.replace('<script src="mobile.js" defer></script>', '<script src="scenes.js" defer></script><script src="mobile.js" defer></script><script src="reader.js" defer></script>')
+html = html.replace('<script src="mobile.js" defer></script>', '<script src="scenes.js" defer></script><script src="mobile.js" defer></script><script src="legado.js" defer></script><script src="reader.js" defer></script>')
 html = html.replace('<section class="page detail-page"', (PROJECT / 'web/library.html').read_text(encoding='utf-8') + '<section class="page detail-page"')
 html = html.replace('</body>', (PROJECT / 'web/reader.html').read_text(encoding='utf-8') + '</body>')
+html = html.replace('</body>', (PROJECT / 'web/legado-dialog.html').read_text(encoding='utf-8') + '</body>')
 html = html.replace('<button type="button" data-nav="bags">', '<button type="button" data-nav="library"><svg class="icon"><use href="#i-book"/></svg><span>书架</span></button><button type="button" data-nav="bags">')
 scenes = '<div class="scene-options" aria-label="景色选择">' + ''.join(f'<button type="button" class="scene-option scene-{key}" data-scene="{key}"><span class="scene-miniature" aria-hidden="true"></span><strong>{name}</strong><small>{detail}</small></button>' for key, name, detail in [('ocean','海岸晨光','细浪与暖光'),('forest','林间微雨','护眼绿'),('stars','星夜远山','黑夜模式'),('rain','雨夜窗景','深蓝夜色')]) + '</div>'
 html = html.replace('<div class="ocean-presets">', scenes + '<div class="ocean-presets">')
@@ -65,11 +66,12 @@ html = html.replace('海面、日光，和阅读前的片刻。', '景色、光�
 html = html.replace('</section>\n              <div class="section-label"><h3>书源与连接', '<p class="motion-status" id="motion-status" role="status"></p></section>\n              <div class="section-label"><h3>书源与连接')
 html = html.replace('<details class="radar-discover', '<p class="radar-freshness" id="radar-freshness"></p><details class="radar-discover')
 html = html.replace('<section class="settings-card glass settings-links">', '<section class="settings-card glass"><button class="setting-row toggle-row" id="toggle-radar-auto" type="button" aria-pressed="true"><span>每日更新番茄雷达</span><span class="switch" aria-hidden="true"></span></button><p id="radar-auto-status" class="settings-footnote"></p></section><section class="settings-card glass settings-links">')
+html = html.replace('<section class="settings-card glass settings-links">', (PROJECT / 'web/reader-integration.html').read_text(encoding='utf-8') + '<section class="settings-card glass settings-links">')
 (mobile / 'index.html').write_text(html, encoding='utf-8')
 css = (prototype / 'mobile.css').read_text(encoding='utf-8') + '\n' + (PROJECT / 'web/android.css').read_text(encoding='utf-8')
 (mobile / 'mobile.css').write_text(css, encoding='utf-8')
 shutil.copy2(PROJECT / 'web/mobile.js', mobile / 'mobile.js')
-for script in ('scenes.js', 'reader.js'):
+for script in ('scenes.js', 'reader.js', 'legado.js'):
     shutil.copy2(PROJECT / 'web' / script, mobile / script)
 (mobile / 'assets').mkdir(exist_ok=True)
 shutil.copy2(prototype / 'assets/ocean.png', mobile / 'assets/ocean.png')

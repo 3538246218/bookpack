@@ -1,4 +1,6 @@
 <section class="page library-page" data-page="library" aria-label="我的书架" hidden>
-  <div class="library-intro glass"><div><span class="eyebrow">YOUR QUIET PLACE</span><h3>从上次停下的地方，继续。</h3><p>已获取的书会自动出现，也可以导入手机里的 TXT / EPUB。</p></div><button class="secondary-button" id="library-import" type="button">导入一本书</button></div>
+  <div class="library-intro glass"><div><span class="eyebrow">YOUR QUIET PLACE</span><h3>从上次停下的地方，继续。</h3><p>已获取的书会自动出现，也可以导入本地 TXT / EPUB。</p></div><button class="secondary-button" id="library-import" type="button">导入一本书</button></div>
+  <input type="file" id="library-web-file" accept=".txt,.epub,text/plain,application/epub+zip" hidden>
+  <div class="library-reader-heading"><span id="library-reader-label"></span><button type="button" data-nav="settings">阅读设置 ↗</button></div>
   <p class="inline-status" id="library-status" role="status"></p><div id="library-books" class="library-books"></div>
 </section>
