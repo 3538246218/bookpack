@@ -154,6 +154,9 @@ def normalize_book(b: dict, meta: dict, idx: int, category: str = "") -> dict:
         "date": meta["date"],
         "source_file": meta["file"],
         "rank_pos": idx + 1,
+        'last_chapter': b.get('last_chapter', ''), 'last_updated': b.get('last_updated', ''),
+        'word_count': b.get('word_count', ''), 'stale': bool(b.get('stale')),
+        'observed_at': b.get('observed_at', ''),
     }
 
 

@@ -103,18 +103,19 @@ def _fetch(url: str, timeout: int = 15) -> str:
 
 def _parse_state(html: str) -> dict:
     """从 HTML 中提取 window.__INITIAL_STATE__ JSON。"""
-    m = _STATE_RE.search(html)
-    if not m:
-        m2 = re.search(r"window\.__INITIAL_STATE__\s*=\s*(\{.*?\})\s*;", html, re.DOTALL)
-        if not m2:
-            return {}
-        try:
-            return json.loads(m2.group(1))
-        except Exception:
-            return {}
+    match = re.search(r'window\.__INITIAL_STATE__\s*=\s*', html)
+    if not match:
+        return {}
+    end = html.find('</script', match.end())
+    raw = html[match.end():end if end >= 0 else len(html)]
+    # Some current rank pages contain JavaScript undefined values. Normalize
+    # only tokens outside quoted strings; never evaluate page JavaScript.
+    raw = re.sub(r'"(?:\\.|[^"\\])*"|\bundefined\b',
+                 lambda token: 'null' if token.group() == 'undefined' else token.group(), raw)
     try:
-        return json.loads(m.group(1))
-    except Exception:
+        value, _ = json.JSONDecoder().raw_decode(raw)
+        return value if isinstance(value, dict) else {}
+    except (ValueError, TypeError):
         return {}
 
 

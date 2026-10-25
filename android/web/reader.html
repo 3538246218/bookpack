@@ -1,0 +1,7 @@
+<section class="reader-overlay" id="reader-view" aria-label="阅读器" hidden>
+  <header class="reader-header"><button id="reader-back" type="button" class="icon-button" aria-label="返回书架"><svg class="icon"><use href="#i-back"/></svg></button><div><strong id="reader-book-title"></strong><small id="reader-chapter-label"></small></div><button id="reader-bookmark" type="button" class="icon-button" aria-label="添加书签">☆</button></header>
+  <article id="reader-scroll" class="reader-paper" tabindex="0" aria-label="书籍正文"><h1 id="reader-chapter-title"></h1><div id="reader-content"></div><p class="reader-section-end" id="reader-section-end"></p></article>
+  <footer class="reader-footer"><div class="reader-progress-row"><button type="button" id="reader-prev">上一章</button><span id="reader-progress" role="status"></span><button type="button" id="reader-next">下一章</button></div><nav aria-label="阅读工具"><button type="button" data-reader-menu="toc">目录</button><button type="button" data-reader-menu="search">搜索</button><button type="button" data-reader-menu="bookmarks">书签</button><button type="button" data-reader-menu="type">排版</button></nav></footer>
+  <dialog id="reader-menu" class="reader-menu"><header><h2 id="reader-menu-title"></h2><button type="button" id="reader-menu-close" class="icon-button" aria-label="关闭阅读工具">×</button></header><div id="reader-menu-content"></div></dialog>
+  <p id="reader-message" class="reader-message" role="status" hidden></p>
+</section>

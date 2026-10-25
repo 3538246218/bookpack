@@ -20,6 +20,7 @@ public class MainActivity extends Activity {
     private WebView web;
     private String savePath, saveName;
     private ValueCallback<Uri[]> fileCallback;
+    private android.database.ContentObserver motionObserver;
     private static final int SAVE = 101, CHOOSE = 102, IMPORT = 103;
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
@@ -45,6 +46,11 @@ public class MainActivity extends Activity {
         web.getSettings().setTextZoom(100); web.setOverScrollMode(View.OVER_SCROLL_NEVER);
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
         web.addJavascriptInterface(new NativeHost(), "AndroidHost");
+        RadarUpdateJob.schedule(this,getSharedPreferences("bookpack",MODE_PRIVATE).getBoolean("dailyRadar",true));
+        motionObserver=new android.database.ContentObserver(new Handler(Looper.getMainLooper())) {
+            @Override public void onChange(boolean selfChange){publishEnvironment();}
+        };
+        getContentResolver().registerContentObserver(android.provider.Settings.Global.getUriFor(android.provider.Settings.Global.ANIMATOR_DURATION_SCALE),false,motionObserver);
         web.setWebViewClient(new WebViewClient() {
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
@@ -76,12 +82,30 @@ public class MainActivity extends Activity {
     }
     private void message(String text) { runOnUiThread(() -> { Toast.makeText(this,text,Toast.LENGTH_LONG).show(); if(web!=null)web.evaluateJavascript("window.nativeFileResult && window.nativeFileResult("+JSONObject.quote(text)+")",null); }); }
     private void handleBack() { web.evaluateJavascript("typeof window.bookpackBack==='function' && window.bookpackBack()", value -> { if (!"true".equals(value)) finish(); }); }
+    private String environment() {
+        return "{\"reducedMotion\":"+(android.provider.Settings.Global.getFloat(getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1f)==0f)+",\"dailyRadar\":"+getSharedPreferences("bookpack",MODE_PRIVATE).getBoolean("dailyRadar",true)+",\"version\":\"0.2.0\"}";
+    }
+    private void publishEnvironment(){if(web!=null)web.evaluateJavascript("window.onNativeEnvironmentChanged && window.onNativeEnvironmentChanged("+environment()+")",null);}
+    @Override protected void onResume(){super.onResume();if(web!=null)publishEnvironment();}
+    @Override protected void onDestroy(){if(motionObserver!=null)getContentResolver().unregisterContentObserver(motionObserver);super.onDestroy();}
     @Override public void onBackPressed() { handleBack(); }
     @Override protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);out.putString("savePath",savePath);out.putString("saveName",saveName);
         String url=web.getUrl();out.putString("hash",url!=null&&url.contains("#")?url.substring(url.indexOf('#')):"");
     }
     final class NativeHost {
+        @JavascriptInterface public String getEnvironment(){return environment();}
+        @JavascriptInterface public void setDailyRadar(boolean enabled){
+            getSharedPreferences("bookpack",MODE_PRIVATE).edit().putBoolean("dailyRadar",enabled).apply();RadarUpdateJob.schedule(MainActivity.this,enabled);
+            CoreRuntime.IO.execute(()->{try{CoreRuntime.start(MainActivity.this).get();Python.getInstance().getModule("android_runtime").callAttr("configure_daily",enabled);}catch(Exception ignored){}});
+        }
+        @JavascriptInterface public void setTheme(boolean dark){runOnUiThread(()->{
+            int color=dark?Color.rgb(10,16,26):Color.rgb(212,229,237);
+            web.setBackgroundColor(color);((View)web.getParent()).setBackgroundColor(color);
+            int flags=View.SYSTEM_UI_FLAG_LAYOUT_STABLE|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            if(!dark)flags|=View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|(Build.VERSION.SDK_INT>=26?View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR:0);
+            getWindow().getDecorView().setSystemUiVisibility(flags);
+        });}
         @JavascriptInterface public String getPreferences() { return getSharedPreferences("bookpack",MODE_PRIVATE).getString("appearance","{}"); }
         @JavascriptInterface public void savePreferences(String json) { getSharedPreferences("bookpack",MODE_PRIVATE).edit().putString("appearance",json).apply(); }
         @JavascriptInterface public void prepareTask() { runOnUiThread(() -> TaskService.keep(MainActivity.this,"正在准备获取…")); }
