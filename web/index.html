@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#9bb9cf">
+  <title>书包 · 书名搜索</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='13' fill='%237999b4'/%3E%3Cpath d='M11 11h7l2 2 2-2h7v19h-7l-2 2-2-2h-7zM20 13v19' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/radar.css">
+  <link rel="stylesheet" href="/feedback.css">
+  <script src="/ocean-controls.js" defer></script>
+  <script src="/search-suggestions.js" defer></script>
+  <script src="/feedback.js" defer></script>
+  <script src="/app.js" defer></script>
+  <script src="/radar.js" defer></script>
+</head>
+<body>
+  <svg class="filter-defs" aria-hidden="true" width="0" height="0">
+    <defs>
+      <filter id="glass-refraction" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency=".012 .025" numOctaves="1" seed="12" result="lens-map"/>
+        <feDisplacementMap in="SourceGraphic" in2="lens-map" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="seascape" aria-hidden="true">
+    <iframe class="ocean-scene" id="ocean-scene" data-src="/ocean/frame.html" title="动态海面背景" tabindex="-1" aria-hidden="true"></iframe>
+  </div>
+
+  <button class="radar-launcher glass" id="radar-open" type="button" aria-haspopup="dialog" aria-controls="radar-dialog">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="m12 12 6-6M12 4V2M20 12h2M12 20v2M4 12H2"/></svg>
+    <span>番茄雷达</span>
+  </button>
+
+  <dialog class="radar-dialog glass" id="radar-dialog" aria-labelledby="radar-heading">
+    <header class="radar-header">
+      <div><p class="radar-eyebrow">发现下一本</p><h2 id="radar-heading">番茄雷达</h2></div>
+      <div class="radar-header-actions">
+        <button class="action-button glass" id="radar-refresh" type="button"><span class="button-spinner" id="radar-refresh-spinner" aria-hidden="true" hidden></span><span id="radar-refresh-label">刷新当前榜</span></button>
+        <button class="icon-button glass" id="radar-close" type="button" aria-label="关闭番茄雷达"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 6 8 8M14 6l-8 8"/></svg></button>
+      </div>
+    </header>
+    <div class="radar-filters" id="radar-filters">
+      <div class="radar-filter-top">
+        <div class="radar-segments" role="group" aria-label="作品频道">
+          <button type="button" data-radar-channel="male" aria-pressed="true">男频</button>
+          <button type="button" data-radar-channel="female" aria-pressed="false">女频</button>
+        </div>
+        <div class="radar-segments" role="group" aria-label="榜单类型">
+          <button type="button" data-radar-rank="read" aria-pressed="true">阅读榜</button>
+          <button type="button" data-radar-rank="new" aria-pressed="false">新书榜</button>
+        </div>
+        <label class="radar-keyword"><span class="sr-only">按书名或作者筛选榜单</span><input id="radar-query" type="search" placeholder="搜书名、作者" autocomplete="off"></label>
+      </div>
+      <div class="radar-filter-bottom">
+        <label><span class="sr-only">分类</span><select id="radar-category"><option value="">全部分类</option></select></label>
+        <label><span class="sr-only">作品状态</span><select id="radar-status"><option value="">全部状态</option><option value="done">已完结</option><option value="serial">连载中</option></select></label>
+        <label><span class="sr-only">最低在读人数</span><select id="radar-min-reads"><option value="0">不限在读</option><option value="100000">10 万在读以上</option><option value="500000">50 万在读以上</option></select></label>
+        <label><span class="sr-only">排序方式</span><select id="radar-sort"><option value="reads">在读优先</option><option value="pos">分类名次优先</option></select></label>
+        <button id="radar-reset" type="button">清除筛选</button>
+      </div>
+    </div>
+    <div class="radar-context">
+      <p id="radar-summary" role="status">正在读取榜单…</p>
+      <p class="radar-loading" id="radar-loading" role="status" hidden><span class="feedback-spinner" aria-hidden="true"></span><span id="radar-loading-label"></span></p>
+      <div class="radar-progress-wrap" id="radar-progress-wrap" hidden><div class="radar-refresh-progress" id="radar-refresh-progress" role="progressbar" aria-label="榜单更新进度" aria-valuemin="0" aria-valuemax="100" hidden><span id="radar-refresh-fill"></span></div><p id="radar-progress" role="status"></p></div>
+      <p id="radar-error" role="alert" hidden></p>
+      <button class="action-button glass" id="radar-reload" type="button" hidden>重试读取榜单</button>
+      <div class="radar-discover" id="radar-discover" hidden>
+        <div class="radar-chip-row" id="radar-heat" aria-label="上榜作品在读合计较高的分类"></div>
+        <div class="radar-chip-row" id="radar-hotwords" aria-label="榜单书名热词"></div>
+      </div>
+    </div>
+    <div class="radar-scroll" id="radar-scroll" tabindex="0" aria-label="榜单结果">
+      <div class="radar-grid" id="radar-books" aria-busy="true"></div>
+      <p class="radar-empty" id="radar-empty" hidden></p>
+      <button class="action-button glass radar-more" id="radar-more" type="button" hidden>加载更多</button>
+    </div>
+    <footer class="radar-footer"><span>榜单来自番茄公开页面</span><span>内核 Fanqie Radar · 方寸写作</span></footer>
+  </dialog>
+
+  <main class="search-app" id="main">
+    <h1 class="sr-only">按书名搜索并获取书籍</h1>
+    <div class="search-composer" id="search-composer">
+    <form class="search-form" id="search-form" role="search" novalidate>
+      <label class="search-field glass" for="book-title">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4 4"/></svg>
+        <span class="sr-only">书名</span>
+        <input id="book-title" name="title" type="text" placeholder="输入书名" autocomplete="off" spellcheck="false" enterkeyhint="search" maxlength="200" aria-describedby="form-error" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestion-list">
+      </label>
+      <button class="search-button glass" id="search-button" type="submit"><span class="button-spinner" id="search-spinner" aria-hidden="true" hidden></span><span id="search-label">搜索</span></button>
+    </form>
+    <div class="suggestion-drawer glass" id="suggestion-drawer" hidden>
+      <div class="suggestion-scroll" id="suggestion-scroll">
+      <span class="sr-only" id="suggestion-status" role="status"></span>
+      <ul class="suggestion-list" id="suggestion-list" role="listbox" aria-label="书名补全与纠错"></ul>
+      <p class="suggestion-empty" id="suggestion-empty" hidden></p>
+      </div>
+    </div>
+    </div>
+
+    <p id="form-error" class="form-error" role="alert" hidden></p>
+
+    <section class="result glass" id="result" aria-label="搜索结果" hidden>
+      <div class="result-top">
+        <p class="result-state" role="status"><span class="state-dot" id="state-dot" aria-hidden="true"></span><span id="result-status"></span></p>
+        <button id="dismiss" class="icon-button glass" type="button" aria-label="收起结果" title="收起结果" hidden><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 6 8 8M14 6l-8 8"/></svg></button>
+      </div>
+      <div id="book-list" class="book-list"></div>
+      <ol class="task-stages" id="task-stages" aria-label="任务阶段" hidden>
+        <li><span class="task-stage-dot" aria-hidden="true"></span>找书</li><li><span class="task-stage-dot" aria-hidden="true"></span>获取</li><li><span class="task-stage-dot" aria-hidden="true"></span>打包</li><li><span class="task-stage-dot" aria-hidden="true"></span>完成</li>
+      </ol>
+      <div id="progress" class="progress" role="progressbar" aria-label="获取进度" aria-valuemin="0" aria-valuemax="100" hidden><span id="progress-fill"></span></div>
+      <p id="archive-error" class="archive-error" role="alert" hidden></p>
+      <div class="result-actions">
+        <a id="download" class="action-button glass primary-action" download hidden><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9m-3-3 3 3 3-3M4 13v4h12v-4"/></svg>下载书包</a>
+        <button id="open-folder" class="action-button glass" type="button" hidden><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 6h5l2 2h7v9H3zM3 6V4h5l2 2"/></svg><span id="open-folder-label">打开文件夹</span></button>
+        <button id="retry" class="action-button glass" type="button" hidden>重新获取</button>
+        <button id="cancel" class="action-button glass" type="button" hidden>停止</button>
+      </div>
+    </section>
+    <p id="feedback" class="feedback" role="status" hidden></p>
+  </main>
+
+  <div class="ocean-controls" id="ocean-controls">
+    <section class="ocean-panel glass" id="ocean-panel" aria-labelledby="ocean-heading" hidden>
+      <div class="ocean-panel-heading">
+        <h2 id="ocean-heading">海面调节</h2>
+        <button id="ocean-close" class="icon-button glass" type="button" aria-label="收起海面调节"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 6 8 8M14 6l-8 8"/></svg></button>
+      </div>
+      <div class="ocean-presets" role="group" aria-label="海面预设">
+        <button class="ocean-preset glass" type="button" data-ocean-preset="calm" aria-pressed="false">平静</button>
+        <button class="ocean-preset glass" type="button" data-ocean-preset="sunset" aria-pressed="false">夕阳</button>
+        <button class="ocean-preset glass" type="button" data-ocean-preset="swell" aria-pressed="false">涌浪</button>
+      </div>
+      <label class="ocean-setting" for="ocean-waves">
+        <span class="setting-label">海浪大小<output id="ocean-waves-value" for="ocean-waves">56</output></span>
+        <input id="ocean-waves" class="glass-range" type="range" min="0" max="100" step="1" value="56">
+      </label>
+      <label class="ocean-setting" for="ocean-daylight">
+        <span class="setting-label">日光<output id="ocean-daylight-value" for="ocean-daylight">午后</output></span>
+        <input id="ocean-daylight" class="glass-range" type="range" min="0" max="100" step="1" value="55">
+        <span class="setting-extremes" aria-hidden="true"><span>黄昏</span><span>正午</span></span>
+      </label>
+      <label class="ocean-setting" for="ocean-glass">
+        <span class="setting-label">白膜不透明度<output id="ocean-glass-value" for="ocean-glass">10%</output></span>
+        <input id="ocean-glass" class="glass-range" type="range" min="0" max="40" step="1" value="10">
+      </label>
+      <div class="ocean-panel-actions">
+        <button id="ocean-auto" class="ocean-auto glass" type="button" aria-pressed="false"><span class="mini-switch" aria-hidden="true"></span>自动日光</button>
+        <button id="ocean-reset" class="ocean-reset glass" type="button">恢复默认</button>
+      </div>
+      <p class="ocean-feedback" id="ocean-feedback" role="status" hidden></p>
+      <button class="action-button glass" id="ocean-reload" type="button" hidden>重新加载海面</button>
+    </section>
+    <button class="ocean-launcher glass" id="ocean-toggle" type="button" aria-expanded="false" aria-controls="ocean-panel"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 8c2-3 4-3 6 0s4 3 6 0 4-3 6 0M3 15c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg><span>海面调节</span></button>
+  </div>
+</body>
+</html>

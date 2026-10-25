@@ -1,0 +1,86 @@
+:root {
+  --feedback-duration: 150ms;
+  --feedback-ease: cubic-bezier(.2, .7, .3, 1);
+  --feedback-success: #24685f;
+  --feedback-error: #873e34;
+}
+:is(.search-button,.action-button,.icon-button,.radar-launcher,.ocean-launcher,.radar-segments button,.radar-chip,.ocean-preset,.ocean-auto,.ocean-reset) {
+  overflow: hidden;
+  transition: transform var(--feedback-duration) var(--feedback-ease), box-shadow var(--feedback-duration), background-color var(--feedback-duration), border-color var(--feedback-duration);
+}
+.radar-segments button, .radar-chip { position: relative; }
+:is(.search-button,.action-button,.icon-button,.radar-launcher,.ocean-launcher,.radar-segments button,.radar-chip,.ocean-preset,.ocean-auto,.ocean-reset):hover:not(:disabled) {
+  border-color: #fff;
+  transform: translateY(-1px);
+}
+:is(.search-button,.action-button,.icon-button,.radar-launcher,.ocean-launcher,.radar-segments button,.radar-chip,.ocean-preset,.ocean-auto,.ocean-reset):active:not(:disabled) {
+  transform: translateY(1px) scale(.985);
+  box-shadow: inset 0 2px 5px rgba(12, 71, 101, .13), inset 0 1px 1px rgba(255,255,255,.75);
+}
+.tap-ripple {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(249, 255, 255, .65);
+  background: radial-gradient(circle, rgba(244,253,255,.18) 0%, rgba(229,251,255,.28) 45%, rgba(240,253,255,.04) 69%, transparent 72%);
+  pointer-events: none;
+  animation: tap-water 440ms cubic-bezier(.15,.6,.3,1) both;
+}
+@keyframes tap-water { from { transform: scale(.04); opacity: .75; } to { transform: scale(1); opacity: 0; } }
+.search-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding-inline: 6px; }
+.search-button.is-busy { letter-spacing: 0; }
+.button-spinner, .feedback-spinner {
+  display: inline-block; flex: 0 0 auto; width: 12px; height: 12px; border: 1.5px solid rgba(23,85,116,.2);
+  border-top-color: currentColor; border-right-color: currentColor; border-radius: 50%; animation: feedback-turn .9s linear infinite;
+}
+@keyframes feedback-turn { to { transform: rotate(360deg); } }
+.result { animation-duration: .22s; }
+.result-state { font-size: 12px; min-height: 20px; }
+.state-dot { position: relative; transition: background-color .16s, box-shadow .16s; }
+.state-dot.is-success { width: 16px; height: 16px; flex: 0 0 16px; background: transparent; box-shadow: none; color: var(--feedback-success); }
+.state-dot.is-success::after { content: ""; position: absolute; left: 0; top: 0; width: 5px; height: 9px; border: solid currentColor; border-width: 0 2px 2px 0; transform: translate(5px, 1px) rotate(45deg); }
+.result[data-phase="complete"] .result-state { color: var(--feedback-success); }
+.result[data-phase="error"] .result-state { color: var(--feedback-error); }
+.result[data-phase="complete"] .primary-action { background: rgb(255 255 255 / min(1, calc(var(--glass-opacity) + .12))); }
+.task-stages { display: flex; list-style: none; gap: 0; padding: 0; margin: 15px 0 2px; }
+.task-stages li { flex: 1; position: relative; display: flex; align-items: center; gap: 5px; min-height: 22px; color: var(--muted); font-size: 10px; white-space: nowrap; }
+.task-stages li:not(:last-child)::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,.5); margin: 0 7px; }
+.task-stage-dot { width: 6px; height: 6px; border: 1px solid rgba(23,85,116,.35); border-radius: 50%; flex-shrink: 0; }
+.task-stages .is-done .task-stage-dot { background: var(--feedback-success); border-color: var(--feedback-success); }
+.task-stages .is-current { color: var(--ink); font-weight: 600; }
+.task-stages .is-current .task-stage-dot { background: var(--ink); border-color: var(--ink); box-shadow: 0 0 0 3px rgba(255,255,255,.28); }
+.task-stages .is-failed { color: var(--feedback-error); }
+.task-stages .is-failed .task-stage-dot { background: var(--feedback-error); border-color: var(--feedback-error); }
+.result[data-phase="complete"] .task-stages .is-current .task-stage-dot { background: var(--feedback-success); border-color: var(--feedback-success); }
+.pending-copy { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.radar-loading { display: flex; align-items: center; gap: 8px; margin-top: 7px !important; font-size: 12px !important; color: var(--ink) !important; }
+.radar-grid { transition: opacity var(--radar-motion-duration) ease; }
+.radar-grid.is-loading { opacity: .46; }
+.radar-grid:has(.radar-skeleton) { opacity: 1; }
+.radar-skeleton { min-height: 174px; pointer-events: none; }
+.skeleton-line { display: block; height: 10px; width: 40%; margin: 5px 0 13px; border-radius: 5px; background: rgba(233,246,251,.44); animation: skeleton-breathe 1.5s ease-in-out infinite; }
+.skeleton-line.is-title { width: 85%; height: 15px; margin: 10px 0 14px; }
+.skeleton-line.is-author { width: 32%; }
+.skeleton-line.is-number { width: 48%; height: 26px; margin-top: 13px; }
+@keyframes skeleton-breathe { 50% { opacity: .45; } }
+.radar-card { transition: border-color var(--radar-motion-duration), box-shadow var(--radar-motion-duration); }
+.radar-card.is-selected { border-color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.42), 0 4px 16px -8px rgba(7,70,100,.25); }
+.radar-select.is-selected:disabled { opacity: 1; }
+.radar-progress-wrap { display: flex; align-items: center; gap: 9px; margin-top: 7px; }
+.radar-refresh-progress { height: 3px; width: 90px; flex: 0 0 90px; background: rgba(255,255,255,.27); border-radius: 3px; overflow: hidden; }
+.radar-refresh-progress > span { display: block; height: 100%; width: 0; background: rgba(32,102,132,.65); border-radius: inherit; transition: width .25s ease; }
+.radar-refresh-progress.is-indeterminate > span { width: 32% !important; animation: searching 2.4s ease-in-out infinite; }
+#radar-progress.is-complete { color: var(--feedback-success); }
+#radar-progress.is-complete::before { content: "✓ "; }
+#radar-reload { margin-top: 7px; min-height: 30px; }
+#radar-refresh { display: inline-flex; gap: 6px; }
+@media(max-width:540px) {
+  .search-button.is-busy { font-size: 12px; gap: 4px; }
+  .search-button .button-spinner { width: 11px; height: 11px; }
+  .radar-progress-wrap { flex-wrap: wrap; gap: 4px 8px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  *, *::before, *::after, .radar-dialog::backdrop { animation: none !important; transition: none !important; }
+  .tap-ripple { display: none; }
+  :is(.search-button,.action-button,.icon-button,.radar-launcher,.ocean-launcher,.radar-segments button,.radar-chip,.ocean-preset,.ocean-auto,.ocean-reset):is(:hover,:active):not(:disabled) { transform: none; }
+}

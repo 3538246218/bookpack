@@ -1,0 +1,9 @@
+[
+  {
+    "title": "我的文稿",
+    "author": "作者",
+    "local_path": "本地书库/我的文稿.txt",
+    "aliases": ["文稿别名"],
+    "source": "我的书库"
+  }
+]

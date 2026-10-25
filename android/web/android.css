@@ -1,0 +1,26 @@
+/* The Android window supplies system bar and keyboard insets. */
+.preview-layout { display:block !important; min-height:100dvh; padding:0 !important; background:transparent; }
+.preview-notes, .preview-label { display:none !important; }
+.device-wrap { width:100%; }
+.mobile-app { height:100dvh !important; min-height:0; border:0; outline:0; border-radius:0; box-shadow:none; }
+.task-book > div { min-width:0; }
+.real-book + .real-book { border-top:1px solid #ffffff9c; padding-top:18px; margin-top:18px; }
+.real-book h4 { font-size:15px; line-height:1.7; margin:0 0 7px; font-weight:600; overflow-wrap:anywhere; }
+.real-book p { font-size:12px; line-height:1.8; margin:4px 0; color:var(--muted); overflow-wrap:anywhere; }
+.real-book .task-error { color:#914938; }
+.candidate-buttons { display:grid; gap:8px; margin:12px 0; }
+.candidate-button { width:100%; min-height:64px; padding:11px 13px; text-align:left; display:grid; gap:5px; border:1px solid #ffffffbd; border-radius:14px; background:#f3fbfd50; }
+.candidate-button strong { font-size:14px; font-weight:500; line-height:1.6; }
+.candidate-button small { color:var(--muted); font-size:12px; line-height:1.7; }
+.task-files { margin-top:20px; }
+.source-setting { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:52px; font-size:13px; border-top:1px solid #ffffff8c; }
+.source-setting input { width:22px; height:22px; accent-color:#255a70; }
+.source-setting small { display:block; color:var(--muted); font-size:12px; line-height:1.7; }
+.radar-inline-error { color:#914938; font-size:13px; line-height:1.8; margin:8px 0; }
+.native-button-row { display:grid; gap:10px; margin-bottom:15px; }
+.task-stages + .real-book { margin-top:20px; }
+.import-mode { display:block; width:100%; border:1px solid #fff; min-height:44px; border-radius:13px; background:#f4fbfd70; padding:8px 10px; margin-bottom:13px; font-size:16px; }
+.radar-list[inert] { opacity:.5; transition:opacity .5s; }
+.is-refreshing .icon { animation:native-refresh 1s linear infinite; }
+@keyframes native-refresh { to { transform:rotate(360deg); } }
+@media(min-width:980px) { .app-scroll { padding-inline:max(24px,calc((100% - 960px)/2)); } }

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#d4e5ed">
+  <title>书包 · 移动端交互原型</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%231c526c'/%3E%3Cpath d='M10 11h7l3 2 3-2h7v19h-7l-3 2-3-2h-7zM20 13v19' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="mobile.css">
+  <script src="radar-data.js" defer></script>
+  <script src="mobile.js" defer></script>
+</head>
+<body>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m12 12 7-7"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l1 13H4zM8 8V6a4 4 0 0 1 8 0v2M9 13h6"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16l-6 7v6l-4-2v-4z"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 10a8 8 0 0 0-14-4L3 9m0-6v6h6M4 14a8 8 0 0 0 14 4l3-3m0 6v-6h-6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3m-4 4 4-4 4 4M7 10H4v11h16V10h-3"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 4h6l3 2 3-2h6v16h-6l-3 2-3-2H3zM12 6v16"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 8c3-4 5-4 8 0s5 4 8 0 4-4 5 0M2 16c3-4 5-4 8 0s5 4 8 0 4-4 5 0"/></symbol>
+  </defs></svg>
+
+  <div class="preview-layout">
+    <aside class="preview-notes">
+      <span class="preview-kicker">书包 / MOBILE STUDY</span>
+      <h1>同一片书海，<br>换一种抵达。</h1>
+      <p>延续海面与玻璃，把找书、雷达和文件保存放进适合单手操作的路径。</p>
+      <ol class="preview-path"><li><span>01</span> 找到下一本</li><li><span>02</span> 带着书名继续</li><li><span>03</span> 把书包带走</li></ol>
+      <div class="preview-scope"><strong>可操作原型 · 安卓 / iPhone 通用方向</strong><p>榜单来自 2026-10-13 的随包快照。所有任务均为演示；保存的是原创样文 ZIP。</p></div>
+    </aside>
+
+    <div class="device-wrap">
+      <p class="preview-label">交互原型 <span>任务为演示 · 可实际保存示例 ZIP</span></p>
+      <div class="mobile-app" id="mobile-app">
+        <div class="app-scene" id="app-scene" aria-hidden="true"></div><div class="app-tint" aria-hidden="true"></div>
+        <div class="app-shell">
+          <header class="app-header">
+            <button class="icon-button" id="page-back" type="button" aria-label="返回" hidden><svg class="icon"><use href="#i-back"/></svg></button>
+            <div class="page-heading"><p id="page-eyebrow">一本好书，随身带走</p><h2 id="page-title">书包</h2></div>
+            <button class="icon-button glass" id="header-action" type="button" aria-label="导入书单"><svg class="icon"><use href="#i-plus"/></svg></button>
+          </header>
+
+          <main class="app-scroll" id="app-scroll">
+            <section class="page search-page" data-page="search" aria-label="找书">
+              <div class="search-intro"><p class="eyebrow">FIND YOUR NEXT</p><h3>下一本，<br>慢慢找到。</h3><p>输入书名，或从雷达里发现。</p></div>
+              <form class="search-form glass" id="search-form" role="search">
+                <svg class="icon"><use href="#i-search"/></svg><label class="sr-only" for="book-query">输入书名或作者</label>
+                <input id="book-query" type="search" placeholder="输入书名或作者" autocomplete="off" enterkeyhint="search" aria-controls="search-results" aria-describedby="search-status">
+                <button class="search-submit" type="submit" aria-label="搜索"><svg class="icon"><use href="#i-arrow"/></svg></button>
+              </form>
+              <p class="inline-status" id="search-status" role="status" hidden></p>
+              <div class="search-results" id="search-results"></div>
+              <div id="search-welcome">
+                <div class="section-label"><h3>从榜单找灵感</h3><span>快照精选</span></div>
+                <div class="inspiration-list" id="inspiration-list"></div>
+                <button class="radar-invite glass" type="button" data-nav="radar"><svg class="icon"><use href="#i-radar"/></svg><span><strong>去番茄雷达看看</strong><small>按频道、分类，找到你的下一本</small></span><svg class="icon"><use href="#i-arrow"/></svg></button>
+                <p class="snapshot-footnote">书名与在读数据来自已保存快照，非今日实时榜单。</p>
+              </div>
+            </section>
+
+            <section class="page radar-page" data-page="radar" aria-label="番茄雷达" hidden>
+              <div class="board-tabs" aria-label="频道"><button data-channel="male" aria-pressed="true" type="button">男频</button><button data-channel="female" aria-pressed="false" type="button">女频</button></div>
+              <div class="radar-type-row"><div class="rank-tabs" aria-label="榜型"><button data-rank="read" aria-pressed="true" type="button">阅读榜</button><button data-rank="new" aria-pressed="false" type="button">新书榜</button></div><span class="radar-dot" aria-hidden="true"></span><span class="snapshot-date" id="snapshot-date"></span></div>
+              <div class="radar-toolbar"><label class="radar-search glass"><svg class="icon"><use href="#i-search"/></svg><span class="sr-only">筛选书名或作者</span><input id="radar-query" type="search" placeholder="搜书名、作者" autocomplete="off" enterkeyhint="search"></label><button class="filter-button glass" id="open-filters" type="button" aria-haspopup="dialog"><svg class="icon"><use href="#i-filter"/></svg><span>筛选</span><span class="filter-count" id="filter-count" hidden></span></button></div>
+              <div class="radar-summary"><p id="radar-summary" role="status"></p><button class="text-button" id="clear-filters" type="button" hidden>清除条件</button></div>
+              <details class="radar-discover glass" id="radar-discover"><summary>榜单发现 <span>分类热度 · 书名热词</span></summary><div id="radar-heat" class="discovery-chips"></div><div id="radar-hotwords" class="discovery-chips"></div></details>
+              <div class="radar-list" id="radar-list"></div><button class="load-more glass" id="radar-more" type="button" hidden>加载更多</button>
+            </section>
+
+            <section class="page bags-page" data-page="bags" aria-label="书包与任务" hidden>
+              <p class="page-lead">从开始找书，到可以带走，都在这里。</p>
+              <div class="bag-tabs" aria-label="任务分类"><button type="button" data-bag-filter="all" aria-pressed="true">全部</button><button type="button" data-bag-filter="complete" aria-pressed="false">已生成</button></div>
+              <div id="bag-list" class="bag-list"></div>
+            </section>
+
+            <section class="page settings-page" data-page="settings" aria-label="设置" hidden>
+              <div class="settings-identity glass"><span class="identity-mark"><svg class="icon"><use href="#i-book"/></svg></span><div><strong>你的书包，你的节奏。</strong><p>海面、日光，和阅读前的片刻。</p></div></div>
+              <div class="section-label"><h3>外观</h3><span>保存在此浏览器</span></div>
+              <section class="settings-card glass" aria-label="海面外观">
+                <div class="ocean-presets"><button data-preset="morning" type="button">晨光</button><button data-preset="afternoon" type="button" aria-pressed="true">午后</button><button data-preset="sunset" type="button">夕阳</button></div>
+                <label class="range-setting" for="waves"><span>海浪大小<output id="waves-value">56</output></span><input id="waves" type="range" min="0" max="100" value="56"></label>
+                <label class="range-setting" for="daylight"><span>日光<output id="daylight-value">55</output></span><input id="daylight" type="range" min="0" max="100" value="55"></label>
+                <label class="range-setting" for="film"><span>玻璃白膜<output id="film-value">22%</output></span><input id="film" type="range" min="0" max="40" value="22"></label>
+                <button class="setting-row toggle-row" id="toggle-auto" type="button" aria-pressed="false"><span>自动日光</span><span class="switch" aria-hidden="true"></span></button>
+                <button class="setting-row toggle-row" id="toggle-motion" type="button" aria-pressed="true"><span>动态海面</span><span class="switch" aria-hidden="true"></span></button>
+              </section>
+              <div class="section-label"><h3>书源与连接</h3></div>
+              <section class="settings-card glass settings-links"><button class="setting-row" id="settings-sources" type="button"><span>书源与文件导入</span><svg class="icon"><use href="#i-arrow"/></svg></button><button class="setting-row" id="connection-settings" type="button"><span>连接与错误状态预览</span><svg class="icon"><use href="#i-arrow"/></svg></button><button class="setting-row" id="reset-appearance" type="button"><span>恢复默认外观</span><svg class="icon"><use href="#i-refresh"/></svg></button></section>
+              <p class="settings-footnote">系统启用减少动态时，界面自动停用位移、水波和旋转。</p>
+            </section>
+
+            <section class="page detail-page" data-page="detail" aria-label="任务详情" hidden><div id="task-detail"></div></section>
+          </main>
+
+          <nav class="bottom-nav glass" aria-label="主导航"><button type="button" data-nav="search" aria-current="page"><svg class="icon"><use href="#i-search"/></svg><span>找书</span></button><button type="button" data-nav="radar"><svg class="icon"><use href="#i-radar"/></svg><span>雷达</span></button><button type="button" data-nav="bags"><svg class="icon"><use href="#i-bag"/></svg><span>书包</span><i id="task-indicator" hidden></i></button><button type="button" data-nav="settings"><svg class="icon"><use href="#i-settings"/></svg><span>设置</span></button></nav>
+          <p class="toast" id="toast" role="status" hidden></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="bottom-sheet glass" id="bottom-sheet" aria-labelledby="sheet-title"><div class="sheet-handle" aria-hidden="true"></div><header class="sheet-header"><h2 id="sheet-title"></h2><button class="icon-button" id="close-sheet" type="button" aria-label="关闭面板"><svg class="icon"><use href="#i-close"/></svg></button></header><div class="sheet-content" id="sheet-content"></div><footer class="sheet-footer" id="sheet-footer"></footer></dialog>
+</body>
+</html>
